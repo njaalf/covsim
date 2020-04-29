@@ -1,0 +1,22 @@
+Package: covsim
+Type: Package
+Title: Simulate from Distributions with given Covariance Matrix and Marginal Information
+Version: 0.1.0
+Authors@R: c(person("Njål", "Foldnes", email = "njal.foldnes@gmail.com", role = c("aut", "cre")),
+           person("Steffen", "Grønneberg", email = "steffeng@gmail.com", role = c("aut")))
+Description: User specifies population covariance matrix. Marginal information may be fully
+        specified, for which the package implements the VITA (VIne-To-Anything) algorithm. 
+        Alternatively, marginal skewness and kurtosis may be specified, for which the package
+        implements the IG (independent generator) algorithm. 
+License: GPL (>= 2)
+Depends: R (>= 3.1.0)
+Imports: 
+    rvinecopulib (>= 0.5.1.1.0),
+    lavaan (>= 0.6-5), 
+    nleqslv, 
+    PearsonDS, 
+    MASS, 
+    stats
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.0
