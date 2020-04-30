@@ -1,6 +1,6 @@
 Package: covsim
 Type: Package
-Title: Simulate from Distributions with given Covariance Matrix and Marginal Information
+Title: Simulate From Distributions With Given Covariance Matrix And Marginal Information
 Version: 0.1.0
 Authors@R: c(person("Njål", "Foldnes", email = "njal.foldnes@gmail.com", role = c("aut", "cre")),
            person("Steffen", "Grønneberg", email = "steffeng@gmail.com", role = c("aut")))
@@ -17,7 +17,8 @@ Imports:
     PearsonDS, 
     MASS, 
     stats,
-    Rcpp
+    Rcpp, 
+    gsl
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.0
