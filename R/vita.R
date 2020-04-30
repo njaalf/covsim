@@ -35,11 +35,11 @@
 #' #normal margins that match the covariances:
 #' marginsnorm <- lapply(X=sqrt(diag(sigma.target)),function(X) list(distr="norm", sd=X) )
 #'
-#' #calibrate with a default D-vine
-#' cv <- vita(marginsnorm, sigma.target =sigma.target)
+#' #calibrate with a default D-vine, with rather low precision (default Nmax is 10^6)
+#' cv <- vita(marginsnorm, sigma.target =sigma.target, Nmax=10^5)
 #'
 #' #check
-#' round(cov(rvinecopulib::rvine(10^6, cv))-sigma.target, 3)
+#' round(cov(rvinecopulib::rvine(10^5, cv))-sigma.target, 3)
 #'
 #' #margins are normal but dependence structure is not
 #' pairs(rvinecopulib::rvine(500, cv))
