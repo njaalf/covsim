@@ -1,5 +1,5 @@
 solve.param <- function(sigma.target, pair.index, cond.index, Matrix, margins, pair_idx,
-                        pcs_list, family_set, Nmax, numrootpoints, conflevel, numpoints, verbose)
+                        pcs_list, family_set, Nmax, numrootpoints, conflevel, numpoints, verbose, cores)
 {
   # construct subvine
   I <- c(pair.index, cond.index)
@@ -44,7 +44,7 @@ solve.param <- function(sigma.target, pair.index, cond.index, Matrix, margins, p
                             pair.index[2]])
 
     subvine$pair_copulas[[num_trees]][[1]]$parameters <- matrix(theta)
-    sim.sample <- rvinecopulib::rvinecop(Nsim, subvine, cores = parallel::detectCores())[,
+    sim.sample <- rvinecopulib::rvinecop(Nsim, subvine, cores = cores)[,
                                                                        recoded.pair.index]
     marg <- margins[[pair.index[1]]]
     par <- marg[names(marg) != "distr"]
@@ -105,7 +105,7 @@ solve.param <- function(sigma.target, pair.index, cond.index, Matrix, margins, p
           return(- sigma.target[pair.index[1],
                                 pair.index[2]])
         subvine$pair_copulas[[num_trees]][[1]]$parameters <- matrix(theta)
-        sim.sample <- rvinecopulib::rvinecop(Nsim, subvine, cores = parallel::detectCores())[,
+        sim.sample <- rvinecopulib::rvinecop(Nsim, subvine, cores = cores)[,
                                                                                              recoded.pair.index]
         marg <- margins[[pair.index[1]]]
         par <- marg[names(marg) != "distr"]
@@ -172,7 +172,7 @@ solve.param <- function(sigma.target, pair.index, cond.index, Matrix, margins, p
             return(- sigma.target[pair.index[1],
                                   pair.index[2]])
           subvine$pair_copulas[[num_trees]][[1]]$parameters <- matrix(theta)
-          sim.sample <- rvinecopulib::rvinecop(Nsim, subvine, cores = parallel::detectCores())[,
+          sim.sample <- rvinecopulib::rvinecop(Nsim, subvine, cores = cores)[,
                                                                                                recoded.pair.index]
           marg <- margins[[pair.index[1]]]
           par <- marg[names(marg) != "distr"]

@@ -22,6 +22,7 @@
 #' @param numpoints The number of samples drawn with size Nmax, to determine the root within search interval
 #' To increase precision increase this number. To calibrate faster (but less precisely), may be reduced to a number no lower than 2
 #'@param verbose If TRUE, outputs details of calibration of each bicopula
+#'@param cores Number of cores to use. If larger than 1, computations are done in parallel. May be determined with parallel:detectCores()
 #'@return If a feasible solution exists,
 #' \code{vita} returns a vine object which may be used for simulation.
 #'
@@ -36,10 +37,11 @@
 #' marginsnorm <- lapply(X=sqrt(diag(sigma.target)),function(X) list(distr="norm", sd=X) )
 #'
 #' #calibrate with a default D-vine, with rather low precision (default Nmax is 10^6)
-#' cv <- vita(marginsnorm, sigma.target =sigma.target, Nmax=10^5)
+#' # if cores=1 is removed, all cores are used, with a speed gain
+#' cv <- vita(marginsnorm, sigma.target =sigma.target, Nmax=10^5, cores=1)
 #'
 #' #check
-#' round(cov(rvinecopulib::rvine(10^5, cv))-sigma.target, 3)
+#' #round(cov(rvinecopulib::rvine(10^5, cv))-sigma.target, 3)
 #'
 #' #margins are normal but dependence structure is not
 #' pairs(rvinecopulib::rvine(500, cv))
@@ -50,7 +52,7 @@
 vita <- function(margins, sigma.target, vc = NULL,
                  family_set = c("clayton", "gauss",
                                 "joe", "gumbel", "frank"),
-                 Nmax = 10^6, numrootpoints=10, conflevel=0.995, numpoints=4, verbose=FALSE)
+                 Nmax = 10^6, numrootpoints=10, conflevel=0.995, numpoints=4, verbose=TRUE, cores=parallel::detectCores())
 {
   # if vc is provided we try to calibrate with its pair-copula families,
   # if a pc is not feasible, we first rotate and then if not succesful,
@@ -104,7 +106,7 @@ vita <- function(margins, sigma.target, vc = NULL,
       res <- tryCatch(solve.param(sigma.target, pair.index, cond.index, Matrix,
                                   margins, pair_idx, pcs_list, family_set, Nmax=Nmax,
                                   numrootpoints=numrootpoints, conflevel=conflevel,
-                                  numpoints=numpoints, verbose=verbose), error = function(err)
+                                  numpoints=numpoints, verbose=verbose, cores=cores), error = function(err)
                                   {
                                     print(paste("\n Error message in solve.param: ", err))
                                     return(NA)

@@ -13,7 +13,8 @@ vita(
   numrootpoints = 10,
   conflevel = 0.995,
   numpoints = 4,
-  verbose = FALSE
+  verbose = TRUE,
+  cores = parallel::detectCores()
 )
 }
 \arguments{
@@ -43,6 +44,8 @@ determines a search interval where Nmax samples are drawn}
 To increase precision increase this number. To calibrate faster (but less precisely), may be reduced to a number no lower than 2}
 
 \item{verbose}{If TRUE, outputs details of calibration of each bicopula}
+
+\item{cores}{Number of cores to use. If larger than 1, computations are done in parallel. May be determined with parallel:detectCores()}
 }
 \value{
 If a feasible solution exists,
@@ -60,11 +63,12 @@ sigma.target <- cov(MASS::mvrnorm(10, mu=rep(0,4), Sigma=diag(1, 4)))
 #normal margins that match the covariances:
 marginsnorm <- lapply(X=sqrt(diag(sigma.target)),function(X) list(distr="norm", sd=X) )
 
-#calibrate with a default D-vine
-cv <- vita(marginsnorm, sigma.target =sigma.target)
+#calibrate with a default D-vine, with rather low precision (default Nmax is 10^6)
+# if cores=1 is removed, all cores are used, with a speed gain
+cv <- vita(marginsnorm, sigma.target =sigma.target, Nmax=10^5, cores=1)
 
 #check
-round(cov(rvinecopulib::rvine(10^6, cv))-sigma.target, 3)
+#round(cov(rvinecopulib::rvine(10^5, cv))-sigma.target, 3)
 
 #margins are normal but dependence structure is not
 pairs(rvinecopulib::rvine(500, cv))
