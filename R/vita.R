@@ -44,7 +44,7 @@
 #' #round(cov(rvinecopulib::rvine(10^5, cv))-sigma.target, 3)
 #'
 #' #margins are normal but dependence structure is not
-#' pairs(rvinecopulib::rvine(500, cv))
+#' #pairs(rvinecopulib::rvine(500, cv))
 #'
 #'
 #'
