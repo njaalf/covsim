@@ -1,6 +1,6 @@
 Package: covsim
 Type: Package
-Title: Simulate From Distributions With Given Covariance Matrix And Marginal Information
+Title: Simulate from Distributions with Given Covariance Matrix and Marginal Information
 Version: 0.1.0
 Authors@R: c(person("Njål", "Foldnes", email = "njal.foldnes@gmail.com", role = c("aut", "cre")),
            person("Steffen", "Grønneberg", email = "steffeng@gmail.com", role = c("aut")))
