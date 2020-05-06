@@ -57,8 +57,8 @@ Covariance matrix and margins are specified, and \code{vita} calibrates the
 pair-copulas in each node of the tree to match the target covariance.
 }
 \examples{
-set.seed(1)# define a target covariance
-sigma.target <- cov(MASS::mvrnorm(10, mu=rep(0,4), Sigma=diag(1, 4)))
+set.seed(1)# define a target covariance. 3 dimensions.
+sigma.target <- cov(MASS::mvrnorm(10, mu=rep(0,3), Sigma=diag(1, 3)))
 
 #normal margins that match the covariances:
 marginsnorm <- lapply(X=sqrt(diag(sigma.target)),function(X) list(distr="norm", sd=X) )
@@ -71,7 +71,7 @@ cv <- vita(marginsnorm, sigma.target =sigma.target, Nmax=10^5, cores=1)
 #round(cov(rvinecopulib::rvine(10^5, cv))-sigma.target, 3)
 
 #margins are normal but dependence structure is not
-pairs(rvinecopulib::rvine(500, cv))
+#pairs(rvinecopulib::rvine(500, cv))
 
 
 
