@@ -30,8 +30,8 @@
 #' Psychometrika, 82(4), 1035-1051
 #'
 #' @examples
-#' set.seed(1)# define a target covariance
-#' sigma.target <- cov(MASS::mvrnorm(10, mu=rep(0,4), Sigma=diag(1, 4)))
+#' set.seed(1)# define a target covariance. 3 dimensions.
+#' sigma.target <- cov(MASS::mvrnorm(10, mu=rep(0,3), Sigma=diag(1, 3)))
 #'
 #' #normal margins that match the covariances:
 #' marginsnorm <- lapply(X=sqrt(diag(sigma.target)),function(X) list(distr="norm", sd=X) )
