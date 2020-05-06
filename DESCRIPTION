@@ -6,9 +6,9 @@ Authors@R: c(person("Njål", "Foldnes", email = "njal.foldnes@gmail.com", role =
            person("Steffen", "Grønneberg", email = "steffeng@gmail.com", role = c("aut")))
 Description: User specifies population covariance matrix. Marginal information may be fully
         specified, for which the package implements the VITA (VIne-To-Anything) algorithm. 
-        Grønneberg and Foldnes (2017) <doi:10.1007/s11336-017-9569-6>
+        Grønneberg and Foldnes (2017) <doi:10.1007/s11336-017-9569-6>.
         Alternatively, marginal skewness and kurtosis may be specified, for which the package
-        implements the IG (independent generator) algorithm. Foldnes and Olsson (2016) <doi:10.1080/00273171.2015.1133274>
+        implements the IG (independent generator) algorithm. Foldnes and Olsson (2016) <doi:10.1080/00273171.2015.1133274>.
 License: GPL (>= 2)
 Depends: R (>= 3.1.0)
 Imports: 
