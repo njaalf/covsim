@@ -1,5 +1,5 @@
 solve.param <- function(sigma.target, pair.index, cond.index, Matrix, margins, pair_idx,
-                        pcs_list, family_set, Nmax, numrootpoints, conflevel, numpoints, verbose, cores)
+                        pcs_list, family_set, Nmax, numrootpoints, conflevel, numpoints, cores)
 {
   # construct subvine
   I <- c(pair.index, cond.index)
@@ -62,13 +62,11 @@ solve.param <- function(sigma.target, pair.index, cond.index, Matrix, margins, p
 
   curr_family <- subvine$pair_copulas[[num_trees]][[1]]$family
   curr_rotation <- subvine$pair_copulas[[num_trees]][[1]]$rotation
-  if(verbose)
-    cat("        The specified bicopula is", curr_family, "with rotation",
-      curr_rotation, ".\n")
+  log.message <- "The specified bicopula is", curr_family, "with rotation", curr_rotation, ".\n")
 
   bb <- get_lowerupper(subvine$pair_copulas[[length(subvine$pair_copulas)]][[1]]$family)
   root <- tryCatch(rootSearch(root.function, thetaLower = bb[1], thetaUpper = bb[2],
-                              Nmax=Nmax, numrootpoints, conflevel, numpoints, verbose),
+                              Nmax=Nmax, numrootpoints, conflevel, numpoints),
                    error = function(err)
                    {
                      print(err)
@@ -76,29 +74,28 @@ solve.param <- function(sigma.target, pair.index, cond.index, Matrix, margins, p
                    })
   if (!is.na(root[1]))
   {
-    if(verbose)
-      cat("        Calibrated copula parameter is", round(root,3), "\n")
+    log.message <- c(log.message, root[2])
+    log.message <- c(log.message , "        Calibrated copula parameter is", round(root,3), "\n"))
     subvine$pair_copulas[[num_trees]][[1]]$parameters <- matrix(root)
     varpair <- pair.index
     idx <- which((pair.index[1] == pair_idx[, 1] & pair.index[2] ==
                     pair_idx[, 2]) | (pair.index[1] == pair_idx[, 2] & pair.index[2] ==
                                         pair_idx[, 1]))
 
-    return(list(idx, subvine$pair_copulas[[num_trees]]))
+    return(list(idx, subvine$pair_copulas[[num_trees]], log.message))
   }
-  if(verbose)
-    cat("           Specified bicopula not feasible \n")
+
+  log.message <- c(log.message, "           Specified bicopula not feasible \n")
   continue <- TRUE
   if (isFALSE(curr_family %in% c("gauss", "frank", "indep")))
   {
-    if(verbose)
-      cat("           Trying to rotate ")
+    log.message <- c(log.message,"           Trying to rotate ")
     for (addrot in c(90, 180, 270))
     {
       subvine$pair_copulas[[num_trees]][[1]]$rotation <- (curr_rotation +
                                                             addrot)%%360
-      if(verbose)
-        cat("-", (curr_rotation + addrot)%%360)
+
+      log.message <- c(log.message, paste("-", (curr_rotation + addrot)%%360))
       root.function <- function(theta, Nsim)
       {
         if(subvine$pair_copulas[[num_trees]][[1]]$family == "indep")
@@ -123,15 +120,15 @@ solve.param <- function(sigma.target, pair.index, cond.index, Matrix, margins, p
 
       root <- tryCatch(rootSearch(root.function, thetaLower = bb[1],
                                   thetaUpper = bb[2], Nmax=Nmax,
-                                  numrootpoints, conflevel, numpoints, verbose), error = function(err)
+                                  numrootpoints, conflevel, numpoints), error = function(err)
                                   {
                                     print(err)
                                     return(NA)
                                   })
       if (!is.na(root[1]))
       {
-        if(verbose)
-          cat("            Calibrated copula parameter", round(root,3), "\n")
+        log.message <- c(log.message, root[2])
+        log.message <- c(log.message,paste("            Calibrated copula parameter", round(root,3), "\n"))
         continue <- FALSE
         break  # out of addrot
       }
@@ -142,8 +139,7 @@ solve.param <- function(sigma.target, pair.index, cond.index, Matrix, margins, p
     # look for other families
     for (family in family_set[curr_family != family_set])
     {
-      if(verbose)
-        cat("\n          Switching to family", family, "\n")
+      log.message <- c(log.message, paste("\n          Switching to family", family, "\n"))
       bb <- get_lowerupper(family)
       upper <- bb[2]
       lower <- bb[1]
@@ -163,8 +159,8 @@ solve.param <- function(sigma.target, pair.index, cond.index, Matrix, margins, p
 
       for (addrot in rotations)
       {
-        if(verbose)
-          cat("            with rotation ", addrot)
+
+        log.message <- c(log.message,paste("            with rotation ", addrot))
         subvine$pair_copulas[[num_trees]][[1]]$rotation <- addrot
         root.function <- function(theta, Nsim)
         {
@@ -190,15 +186,15 @@ solve.param <- function(sigma.target, pair.index, cond.index, Matrix, margins, p
 
         root <- tryCatch(rootSearch(root.function, thetaLower = bb[1],
                                     thetaUpper = bb[2], Nmax=Nmax,
-                                    numrootpoints, conflevel, numpoints, verbose), error = function(err)
+                                    numrootpoints, conflevel, numpoints), error = function(err)
                                     {
                                       print(err)
                                       return(NA)
                                     })
         if (!is.na(root[1]))
         {
-          if(verbose)
-            cat("           Calibrated copula parameter", round(root,3), "\n")
+          log.message <- c(log.message, root[2])
+          log.message <- c(log.message,paste("           Calibrated copula parameter", round(root,3), "\n"))
           continue <- FALSE
           break  # out of addrot
         }
@@ -217,11 +213,11 @@ solve.param <- function(sigma.target, pair.index, cond.index, Matrix, margins, p
   idx <- which((pair.index[1] == pair_idx[, 1] & pair.index[2] == pair_idx[,
                                                                            2]) | (pair.index[1] == pair_idx[, 2] & pair.index[2] == pair_idx[,                                                                                                                                    1]))
 
-  return(list(idx, subvine$pair_copulas[[num_trees]]))
+  return(list(idx, subvine$pair_copulas[[num_trees]], log.message))
 }
 
 
-rootSearch <- function(root.function, thetaLower, thetaUpper,Nmax, numrootpoints , conflevel, numpoints, verbose){
+rootSearch <- function(root.function, thetaLower, thetaUpper,Nmax, numrootpoints , conflevel, numpoints){
   Nsmall <- 1.5*10^3
   get_root <- function(n, lower, upper)
   {
@@ -266,8 +262,7 @@ rootSearch <- function(root.function, thetaLower, thetaUpper,Nmax, numrootpoints
 
   lowerStart <- max(thetaLower, confint[1])
   upperStart <- min(thetaUpper, confint[2])
-  if(verbose)
-    cat("        Searching in interval (", round(lowerStart, 2),
+  search.message <-paste("        Searching in interval (", round(lowerStart, 2),
         ",", round(upperStart, 2), ")\n")
 
   x <- seq(lowerStart, upperStart, length.out = numpoints)
@@ -287,5 +282,5 @@ rootSearch <- function(root.function, thetaLower, thetaUpper,Nmax, numrootpoints
   if(is.na(rootFinal[1]))
     return(NA)
   else
-    return(rootFinal$root)
+    return(list(rootFinal$root, search.message)
 }

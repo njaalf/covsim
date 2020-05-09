@@ -86,7 +86,8 @@ vita <- function(margins, sigma.target, vc = NULL,
   counter <- 1
   for (i in seq_along(pcs))
   {
-    cat("Tree", i, "\n")
+    if (verbose)
+      cat("Tree", i, "\n")
     for (j in seq_along(pcs[[i]]))
     {
       var1 <- v_matrix[d + 1 - j, j]
@@ -100,13 +101,14 @@ vita <- function(margins, sigma.target, vc = NULL,
       }
       pair.index <- c(var1, var2)
       cond.index <- conditional
-      cat("   ", var1, "-", var2, "(", counter, "of", d * (d - 1)/2,
+      if(verbose)
+        cat("   ", var1, "-", var2, "(", counter, "of", d * (d - 1)/2,
           ")\n")
 
       res <- tryCatch(solve.param(sigma.target, pair.index, cond.index, Matrix,
                                   margins, pair_idx, pcs_list, family_set, Nmax=Nmax,
                                   numrootpoints=numrootpoints, conflevel=conflevel,
-                                  numpoints=numpoints, verbose=verbose, cores=cores), error = function(err)
+                                  numpoints=numpoints, cores=cores), error = function(err)
                                   {
                                     print(paste("\n Error message in solve.param: ", err))
                                     return(NA)
