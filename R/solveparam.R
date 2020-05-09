@@ -62,27 +62,25 @@ solve.param <- function(sigma.target, pair.index, cond.index, Matrix, margins, p
 
   curr_family <- subvine$pair_copulas[[num_trees]][[1]]$family
   curr_rotation <- subvine$pair_copulas[[num_trees]][[1]]$rotation
-  log.message <- "The specified bicopula is", curr_family, "with rotation", curr_rotation, ".\n")
+  log.message <- paste("The specified bicopula is", curr_family, "with rotation", curr_rotation, ".\n")
 
   bb <- get_lowerupper(subvine$pair_copulas[[length(subvine$pair_copulas)]][[1]]$family)
   root <- tryCatch(rootSearch(root.function, thetaLower = bb[1], thetaUpper = bb[2],
-                              Nmax=Nmax, numrootpoints, conflevel, numpoints),
+                              Nmax=Nmax, numrootpoints, conflevel, numpoints, cores),
                    error = function(err)
                    {
                      print(err)
                      return(NA)
                    })
-  if (!is.na(root[1]))
+  if (!is.na(root[[1]]))
   {
-    log.message <- c(log.message, root[2])
-    log.message <- c(log.message , "        Calibrated copula parameter is", round(root,3), "\n"))
-    subvine$pair_copulas[[num_trees]][[1]]$parameters <- matrix(root)
+    subvine$pair_copulas[[num_trees]][[1]]$parameters <- matrix(root[[1]])
     varpair <- pair.index
     idx <- which((pair.index[1] == pair_idx[, 1] & pair.index[2] ==
                     pair_idx[, 2]) | (pair.index[1] == pair_idx[, 2] & pair.index[2] ==
                                         pair_idx[, 1]))
 
-    return(list(idx, subvine$pair_copulas[[num_trees]], log.message))
+    return(list(idx, subvine$pair_copulas[[num_trees]]))
   }
 
   log.message <- c(log.message, "           Specified bicopula not feasible \n")
@@ -120,15 +118,13 @@ solve.param <- function(sigma.target, pair.index, cond.index, Matrix, margins, p
 
       root <- tryCatch(rootSearch(root.function, thetaLower = bb[1],
                                   thetaUpper = bb[2], Nmax=Nmax,
-                                  numrootpoints, conflevel, numpoints), error = function(err)
+                                  numrootpoints, conflevel, numpoints, cores), error = function(err)
                                   {
                                     print(err)
                                     return(NA)
                                   })
-      if (!is.na(root[1]))
+      if (!is.na(root[[1]]))
       {
-        log.message <- c(log.message, root[2])
-        log.message <- c(log.message,paste("            Calibrated copula parameter", round(root,3), "\n"))
         continue <- FALSE
         break  # out of addrot
       }
@@ -186,15 +182,13 @@ solve.param <- function(sigma.target, pair.index, cond.index, Matrix, margins, p
 
         root <- tryCatch(rootSearch(root.function, thetaLower = bb[1],
                                     thetaUpper = bb[2], Nmax=Nmax,
-                                    numrootpoints, conflevel, numpoints), error = function(err)
+                                    numrootpoints, conflevel, numpoints, cores), error = function(err)
                                     {
                                       print(err)
                                       return(NA)
                                     })
-        if (!is.na(root[1]))
+        if (!is.na(root[[1]]))
         {
-          log.message <- c(log.message, root[2])
-          log.message <- c(log.message,paste("           Calibrated copula parameter", round(root,3), "\n"))
           continue <- FALSE
           break  # out of addrot
         }
@@ -204,20 +198,23 @@ solve.param <- function(sigma.target, pair.index, cond.index, Matrix, margins, p
     }  #end families
   }
 
-  if (continue)
+  if (continue){
+    warning(log.message)
     return(NA)
+  }
 
 
-  subvine$pair_copulas[[num_trees]][[1]]$parameters <- matrix(root)
+  subvine$pair_copulas[[num_trees]][[1]]$parameters <- matrix(root[[1]])
   varpair <- pair.index
   idx <- which((pair.index[1] == pair_idx[, 1] & pair.index[2] == pair_idx[,
                                                                            2]) | (pair.index[1] == pair_idx[, 2] & pair.index[2] == pair_idx[,                                                                                                                                    1]))
 
-  return(list(idx, subvine$pair_copulas[[num_trees]], log.message))
+  return(list(idx, subvine$pair_copulas[[num_trees]]))
 }
 
 
-rootSearch <- function(root.function, thetaLower, thetaUpper,Nmax, numrootpoints , conflevel, numpoints){
+rootSearch <- function(root.function, thetaLower, thetaUpper,Nmax, numrootpoints ,
+                       conflevel, numpoints, cores){
   Nsmall <- 1.5*10^3
   get_root <- function(n, lower, upper)
   {
@@ -262,9 +259,6 @@ rootSearch <- function(root.function, thetaLower, thetaUpper,Nmax, numrootpoints
 
   lowerStart <- max(thetaLower, confint[1])
   upperStart <- min(thetaUpper, confint[2])
-  search.message <-paste("        Searching in interval (", round(lowerStart, 2),
-        ",", round(upperStart, 2), ")\n")
-
   x <- seq(lowerStart, upperStart, length.out = numpoints)
   y <- sapply(x, root.function, Nsim = Nmax)
   form <- stats::lm(formula = y ~ poly(x, 2, raw = TRUE))
@@ -282,5 +276,5 @@ rootSearch <- function(root.function, thetaLower, thetaUpper,Nmax, numrootpoints
   if(is.na(rootFinal[1]))
     return(NA)
   else
-    return(list(rootFinal$root, search.message)
+    return(rootFinal$root)
 }

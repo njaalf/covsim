@@ -9,5 +9,6 @@
 
 ## 0.1.0 Submission
 
-This submission has a reduced running-time for examples in vita.R.
-It runs in 5 seconds in local test environment.
+After manual feedback from CRAN, I reduced length of title, and reduced
+information messaging to console. I now only have a reduced number of if(verbose) cat(), as suggested by Jelena Saf at CRAN.
+

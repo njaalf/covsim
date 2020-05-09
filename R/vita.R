@@ -23,8 +23,8 @@
 #' To increase precision increase this number. To calibrate faster (but less precisely), may be reduced to a number no lower than 2
 #'@param verbose If TRUE, outputs details of calibration of each bicopula
 #'@param cores Number of cores to use. If larger than 1, computations are done in parallel. May be determined with parallel:detectCores()
-#'@return If a feasible solution exists,
-#' \code{vita} returns a vine object which may be used for simulation.
+#'@return If a feasible solution was found, a vine to be used for simulation
+#'
 #'
 #'@references Grønneberg, S and Foldnes, N. (2017). Covariance model simulation using regular vines.
 #' Psychometrika, 82(4), 1035-1051
@@ -38,13 +38,12 @@
 #'
 #' #calibrate with a default D-vine, with rather low precision (default Nmax is 10^6)
 #' # if cores=1 is removed, all cores are used, with a speed gain
-#' cv <- vita(marginsnorm, sigma.target =sigma.target, Nmax=10^5, cores=1)
-#'
+#' calibrated.vine <- vita(marginsnorm, sigma.target =sigma.target, Nmax=10^5, cores=1)
 #' #check
-#' #round(cov(rvinecopulib::rvine(10^5, cv))-sigma.target, 3)
+#' #round(cov(rvinecopulib::rvine(10^5, calibrated.vine))-sigma.target, 3)
 #'
 #' #margins are normal but dependence structure is not
-#' #pairs(rvinecopulib::rvine(500, cv))
+#' #pairs(rvinecopulib::rvine(500, calibrated.vine))
 #'
 #'
 #'
@@ -52,7 +51,9 @@
 vita <- function(margins, sigma.target, vc = NULL,
                  family_set = c("clayton", "gauss",
                                 "joe", "gumbel", "frank"),
-                 Nmax = 10^6, numrootpoints=10, conflevel=0.995, numpoints=4, verbose=TRUE, cores=parallel::detectCores())
+                 Nmax = 10^6, numrootpoints=10, conflevel=0.995,
+                 numpoints=4, verbose=TRUE,
+                 cores=parallel::detectCores())
 {
   # if vc is provided we try to calibrate with its pair-copula families,
   # if a pc is not feasible, we first rotate and then if not succesful,
@@ -83,7 +84,7 @@ vita <- function(margins, sigma.target, vc = NULL,
     stop(paste("ERR: 'family_set' allows only one-parameter families: gauss, clayton, gumbel, frank, or joe.\n"))
 
   # run algorithm
-  counter <- 1
+  counter <- 1; messages <- NULL
   for (i in seq_along(pcs))
   {
     if (verbose)
@@ -113,17 +114,18 @@ vita <- function(margins, sigma.target, vc = NULL,
                                     print(paste("\n Error message in solve.param: ", err))
                                     return(NA)
                                   })
-      if (length(res) !=2 )
-        stop("\n \n  The specified vine, marginal and covariances are not compatible. \n \n ")
+      if (is.na(res[[1]])){
+        message("\n \n  The specified vine, marginal and covariances are not compatible. \n \n ")
+        return(NULL)
+      }
       pcs_list[res[[1]]] <- res[[2]]
       counter <- counter + 1
-
     }
   }
 
   pcs_calibrated <- unflatten(pcs_list)
 
-  rvinecopulib::vine_dist(margins, pair_copulas = pcs_calibrated, structure = v_matrix)
+  return(rvinecopulib::vine_dist(margins, pair_copulas = pcs_calibrated, structure = v_matrix))
 }
 
 
