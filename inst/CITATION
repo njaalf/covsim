@@ -16,22 +16,3 @@ citEntry(entry = "Article",
                  "Psychometrika, 82(4).",
                  "URL https://doi.org/10.1007/s11336-017-9569-6")
 )
-
-citHeader("To cite covsim in publications use:")
-
-citEntry(entry = "Article",
-         title        = "Covariance Model Simulation Using Regular Vines",
-         author       = personList(as.person("Steffen Grønneberg"),
-                                   as.person("Njål Foldnes")),
-         journal      = "Psychometrika",
-         year         = "2017",
-         volume       = "82",
-         number       = "4",
-         url          = "https://doi.org/10.1007/s11336-017-9569-6",
-
-         textVersion  =
-           paste("Steffen Grønneberg, Njål Foldnes (2017).",
-                 "Covariance Model Simulation Using Regular Vines.",
-                 "Psychometrika, 82(4).",
-                 "URL https://doi.org/10.1007/s11336-017-9569-6")
-)
