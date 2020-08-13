@@ -38,7 +38,7 @@
 #'         excesskurt=population.excesskurt,
 #'         reps=5)
 #' @export
-rIG <- function(N, sigma.target,  skewness, excesskurtosis, reps=1, typeA="symm") {
+rIG <- function(N, sigma.target,  skewness, excesskurtosis, reps=1, typeA=c("symm", "triang")) {
   if(  is.null(sigma.target))
     stop("Please specify sigma.target")
 
@@ -61,6 +61,7 @@ rIG <- function(N, sigma.target,  skewness, excesskurtosis, reps=1, typeA="symm"
   }
 
   #calculate A
+  typeA <- match.arg(typeA)
   if(typeA=="triang")
     A  <- t(chol(sigma.target))
   else

@@ -4,7 +4,14 @@
 \alias{rIG}
 \title{Simulation of non-normal data}
 \usage{
-rIG(N, sigma.target, skewness, excesskurtosis, reps = 1, typeA = "symm")
+rIG(
+  N,
+  sigma.target,
+  skewness,
+  excesskurtosis,
+  reps = 1,
+  typeA = c("symm", "triang")
+)
 }
 \arguments{
 \item{N}{Number of observations to simulate.}

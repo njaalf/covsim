@@ -55,11 +55,19 @@ vita <- function(margins, sigma.target, vc = NULL,
                  numpoints=4, verbose=TRUE,
                  cores=parallel::detectCores())
 {
+  # candidate copulas allowed
+  if (!all(family_set %in% c("gauss", "clayton", "gumbel", "frank", "joe")))
+    stop(paste("ERR: 'family_set' allows only one-parameter families: gauss, clayton, gumbel, frank, or joe.\n"))
+  #family_set <- match.arg(family_set, several.ok = TRUE)
+
+
   # if vc is provided we try to calibrate with its pair-copula families,
   # if a pc is not feasible, we first rotate and then if not succesful,
   # switch to pc's provided in family_set if vc not provided, we generate
   # a d-vine vc and run through family_set in each node, looking for
-  # feasibility:
+  # feasibility
+
+
   d <- ncol(sigma.target)
   if (is.null(vc))
   {
@@ -79,9 +87,6 @@ vita <- function(margins, sigma.target, vc = NULL,
   pair_idx <- get_pair_idx(v_matrix)
   Matrix <- v_matrix[rev(1:d), ]  # VineCopula package, for create.submatrix
 
-  # candidate copulas allowed
-  if (!all(family_set %in% c("gauss", "clayton", "gumbel", "frank", "joe")))
-    stop(paste("ERR: 'family_set' allows only one-parameter families: gauss, clayton, gumbel, frank, or joe.\n"))
 
   # run algorithm
   counter <- 1; messages <- NULL
