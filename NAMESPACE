@@ -3,4 +3,3 @@
 export(rIG)
 export(rPLSIM)
 export(vita)
-importFrom("stats", "cov2cor", "dnorm", "nlminb", "pnorm", "qnorm", "rnorm")

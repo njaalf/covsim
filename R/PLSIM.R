@@ -14,7 +14,7 @@
 #' @param verbose If true, progress details of the procedure are printed
 #' @return A list with two elements. First element: the list of simulated samples. Second element: The fitted piecewise linear functions and the intermediate correlations matrix.
 #' @author Njål Foldnes  (\email{njal.foldnes@gmail.com})
-#' @references Foldnes, N. and Grønneberg S. (2021). Non-normal data simulation using piecewise linear transforms. Structural Equation Modeling, Volume (2-3), pp-pp
+#' @references Foldnes, N. and Grønneberg S. (2021). Non-normal data simulation using piecewise linear transforms.Under review.
 #' @examples
 #' #'set.seed(1)
 #'sigma.target  <- cov(MASS::mvrnorm(5, rep(0,3), diag(3)))
