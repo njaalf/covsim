@@ -115,6 +115,140 @@ get_lowerupper <- function(name)
   bound_list[[grep(name, names, fixed = T)]]
 }
 
+#####
+## PLSIM functions
+####
+get_truncated_moments <- function(g1,g2){# orjebins recursive formula
+  # second term in recursive formula should be zero at infinite endpoint
+  infg1 <- is.infinite(g1); infg2 <-  is.infinite(g2)
+  Diff <- pnorm(g2)-pnorm(g1)
+  m <- c(0,1, (dnorm(g1)-dnorm(g2))/Diff)
+  m <- c(m, (length(m)-2)*m[length(m)-1]-(ifelse(infg2,0, g2)^(length(m)-2)*dnorm(g2)-ifelse(infg1,0, g1)^(length(m)-2)*dnorm(g1))/Diff)
+  m <- c(m, (length(m)-2)*m[length(m)-1]-(ifelse(infg2,0, g2)^(length(m)-2)*dnorm(g2)-ifelse(infg1,0, g1)^(length(m)-2)*dnorm(g1))/Diff)
+  m <- c(m, (length(m)-2)*m[length(m)-1]-(ifelse(infg2,0, g2)^(length(m)-2)*dnorm(g2)-ifelse(infg1,0, g1)^(length(m)-2)*dnorm(g1))/Diff)
+  m[3:length(m)]
+}
+
+# (a_iZ+b_i)*I( g1 < Z < g2)
+get_segment_moments <- function(a, b, g1, g2){
+  #moments of Z*I( g1 < Z < g2)
+  mom <- c(1, get_truncated_moments(g1, g2))*(pnorm(g2)-pnorm(g1))
+
+  koefs <- matrix(c(0, 0, 0, a, b,
+                    0, 0, a^2, 2*a*b, b^2,
+                    0, a^3, 3*a^2*b, 3*a*b^2, b^3,
+                    a^4, 4*a^3*b, 6*a^2*b^2,4*a*b^3, b^4), byrow = T, nrow=4)
+  as.vector(koefs %*% matrix(rev(mom)))
+}
+
+
+
+#skew and kurtosis
+skewkurt_discrepancy <- function(a, gamma, skew, kurt){#
+  ##  continuity.zero mean.
+  b <- get_bs(a, gamma)
+  mom <- get_pl_moments(a,b, gamma)
+  var <- mom[2]
+  s <- mom[3]/var^1.5
+  k <- mom[4]/var^2-3
+  (s-skew)^2+(k-kurt)^2
+}
+#calibrate b for zero mean and continuity
+get_bs <- function(a, gamma){
+  b <- rep(0, length(a))
+  for(i in 2:length(b))
+    b[i] <- b[i-1]+(a[i-1]-a[i])*gamma[i-1]
+  b-get_pl_mean(a,b,gamma)
+}
+
+get_pl_mean <- function(a,b,gamma){
+  ddiff <- diff(dnorm(c(-Inf, gamma, Inf)))
+  pdiff <- diff(pnorm(c(-Inf, gamma, Inf)))
+  -sum(ddiff*a)+sum(pdiff*b)#in paper
+}
+
+get_pl_moments <- function(a, b, gamma){
+  g <- c(-Inf, gamma, Inf)
+  res <- sapply(1:length(a), function(i){
+    get_segment_moments(a[i],b[i], g[i], g[i+1])
+  })
+  rowSums(res)
+}
+
+## fit piecewise linear functions
+fit_univariate <- function(gammalist, skew, kurt, scale=FALSE, monot){
+
+  alist <- lapply( 1:length(skew), function(i){
+    out <- nlminb(start=rep(1, length(gammalist[[i]])+1),
+                  objective =skewkurt_discrepancy,
+                  gamma=gammalist[[i]], skew=skew[i], kurt=kurt[i], lower=ifelse(monot, 0.05,-Inf))
+    if(out$objective< 1e-4)
+      return(out$par)
+    else
+      return(NA)
+  })
+
+  if(sum(is.na(alist)) > 0)
+     return(NA)
+
+  if(scale){
+    alist <- lapply(1:length(alist), function(i){
+      a <- alist[[i]]; gamma <- gammalist[[i]]
+      b <- get_bs(a, gamma)
+      mom <- get_pl_moments(a, b, gamma)
+      a/sqrt(mom[2])
+    })
+  }
+  return(alist)
+}
+
+
+# regular gammas
+get_gamma <- function(k) qnorm((1:k)/k)[1:(k-1)]
+
+#
+pl_fun <- function(x, a, b, gamma){
+  k <- findInterval(x, gamma)+1
+  a[k]*x+b[k]
+}
+
+
+## COVARIANCE
+get_cov<- function(a1, b1, gamma1, a2,b2, gamma2, rho){
+  gg1 <- c(-Inf, gamma1, Inf)
+  gg2 <- c(-Inf, gamma2, Inf)
+
+  cov <- 0
+  for(j in 2:length(gg2)){
+    low2 <- gg2[j-1]; upp2 <- gg2[j]
+    a2.tmp <- a2[j-1]; b2.tmp <- b2[j-1]
+    for(i in 2:length(gg1)){
+      low1 <- gg1[i-1]; upp1 <- gg1[i]
+      a1.tmp <- a1[i-1]; b1.tmp <- b1[i-1]
+
+      prob <- tmvtnorm::ptmvnorm(lowerx=c(low1,low2), upperx=c(upp1,upp2),
+                                 sigma=matrix(c(1,rho, rho, 1),2))
+
+      ## sometimes returns NA for extreme case
+      ## so we break if prob is 0
+      if (prob < 1e-6)
+        next
+
+      res <- tmvtnorm::mtmvnorm(sigma=matrix(c(1,rho, rho, 1),2),
+                                lower=c(low1,low2), upper=c(upp1,upp2))
+      ex <- res$tmean[1]; ey <- res$tmean[2]
+      exy <- res$tvar[1,2]+ex*ey
+      if(is.na(exy))
+        cat("NA in exy for",i, j, "\n")
+      cov <- cov + (a1.tmp*a2.tmp*exy +a1.tmp*b2.tmp*ex+
+                      a2.tmp*b1.tmp*ey+b1.tmp*b2.tmp)*prob
+    }
+  }
+  cov
+}
+
+
+
 
 
 

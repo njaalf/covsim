@@ -1,7 +1,7 @@
 covsim
 ==========
 
-This package contains two implementations of simulation procedures
+This package contains  implementations of three simulation procedures
 that simulate from a multivariate distributions with a pre-specified
 covariance matrix. In addition, the user may pre-specify marginal information. The main function is vita, which implements the very general VIne-To-Anything (VITA) algorithm of Grønneberg and Foldnes (Psychometrika, 2017).
 
@@ -43,9 +43,17 @@ In addition to vita, a simpler and much more restricted simulation algorithm is 
 The IG approach is comparable to the Vale-Maurelli approach, in that
 it is fast and precise. Only skewness and kurtosis of the marginals is provided. The marginal distributions are therefore not fully controlled using IG. 
 
+### PLSIM 
+
+has a similar interface as that of IG. Skewness and kurtosis is pre-specified. PLSIM is flexible beyond the default values. Numsegments can be increased, or the breakpoints manually set by providing gammalist.  
+
 
 References
 ----------
 Grønneberg, S., Foldnes, N. Covariance Model Simulation Using Regular Vines. Psychometrika 82, 1035–1051 (2017). https://doi.org/10.1007/s11336-017-9569-6
 
 Njål Foldnes & Ulf Henning Olsson (2016) A Simple Simulation Technique for Nonnormal Data with Prespecified Skewness, Kurtosis, and Covariance Matrix, Multivariate Behavioral Research, 51:2-3, 207-219, DOI: 10.1080/00273171.2015.1133274
+
+Njål Foldnes & Steffen Grønneberg (2021) Non-normal data simulation using piecewise linear transforms. Submitted to Structural Equation Modeling.
+
+
