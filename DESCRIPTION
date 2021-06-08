@@ -1,7 +1,7 @@
 Package: covsim
 Type: Package
 Title: VITA, IG and PLSIM Simulation for Given Covariance and Marginals
-Version: 0.1.1
+Version: 0.2.0
 Authors@R: c(person("Njål", "Foldnes", email = "njal.foldnes@gmail.com", role = c("aut", "cre")),
            person("Steffen", "Grønneberg", email = "steffeng@gmail.com", role = c("aut")))
 Description: User specifies population covariance matrix. Marginal information may be fully
