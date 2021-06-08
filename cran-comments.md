@@ -12,3 +12,6 @@
 After manual feedback from CRAN, I reduced length of title, and reduced
 information messaging to console. I now only have a reduced number of if(verbose) cat(), as suggested by Jelena Saf at CRAN.
 
+### 0.2.0
+
+Added new function rPLSIM 
