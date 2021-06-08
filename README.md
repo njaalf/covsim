@@ -54,6 +54,6 @@ Grønneberg, S., Foldnes, N. Covariance Model Simulation Using Regular Vines. Ps
 
 Njål Foldnes & Ulf Henning Olsson (2016) A Simple Simulation Technique for Nonnormal Data with Prespecified Skewness, Kurtosis, and Covariance Matrix, Multivariate Behavioral Research, 51:2-3, 207-219, DOI: 10.1080/00273171.2015.1133274
 
-Njål Foldnes & Steffen Grønneberg (2021) Non-normal data simulation using piecewise linear transforms. Submitted to Structural Equation Modeling.
+Njål Foldnes & Steffen Grønneberg (2021) Non-normal data simulation using piecewise linear transforms. In review.
 
 
