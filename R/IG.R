@@ -62,10 +62,10 @@ rIG <- function(N, sigma.target,  skewness, excesskurtosis, reps=1, typeA=c("sym
 
   #calculate A
   typeA <- match.arg(typeA)
-  if(typeA=="triang")
-    A  <- t(chol(sigma.target))
-  else
+  if(typeA=="symm")
     A  <- lavaan::lav_matrix_symmetric_sqrt(sigma.target)#symmetric
+  else
+    A  <- t(chol(sigma.target))
 
   IGskew        <- nleqslv::nleqslv(x=skewness, function.skew)$x
   IGkurt.excess <- nleqslv::nleqslv(x=excesskurtosis, function.kurt)$x

@@ -59,20 +59,40 @@ rPLSIM <- function(N, sigma.target,  skewness, excesskurtosis, reps=1, numsegmen
 
   #pairwise calibration
   z.corr <- diag(length(alist))
+  solved.already <- list()
+  solved.corrs <- NULL
   for(i in 1:(ncol(z.corr)-1)){
     for(j in ((i+1):ncol(z.corr))){
       if(verbose)
         message("Calibrating vars: ",i,"-",j)
-      out <- stats::nlminb(corr.target[i, j], function(rho){
-        (get_cov(alist[[i]],blist[[i]],gammalist[[i]],  alist[[j]],blist[[j]], gammalist[[j]], rho)-corr.target[i,j])^2
-      }, lower = -0.998, upper=0.998)
-      if(out$objective < 1e-4)
-        z.corr[i, j] <- z.corr[j,i] <- out$par
-      else {
-        stop("Error: No intermediate correlation exists for ", i, j,"\n" )
+      listelement <- list(corr.target[i, j], alist[[i]], blist[[i]], gammalist[[i]],
+                          alist[[j]], blist[[j]], gammalist[[j]])
+      #already solved
+      if(length(solved.already) > 0)
+        match <- which(sapply(solved.already, identical, listelement))
+      else
+        match <- vector()
+
+      if(length(match)==0){#not already solved
+        #cat("#not already solved\n")
+        out <- stats::nlminb(corr.target[i, j], function(rho){
+          (get_cov(alist[[i]],blist[[i]],gammalist[[i]],  alist[[j]],blist[[j]], gammalist[[j]], rho)-corr.target[i,j])^2
+        }, lower = -0.998, upper=0.998)
+        if(out$objective < 1e-4){
+          z.corr[i, j] <- z.corr[j,i] <- out$par
+          solved.already[[length(solved.already)+1]] <- listelement
+          solved.corrs <- c(solved.corrs, out$par)
+        }
+        else {
+          stop("Error: No intermediate correlation exists for ", i, j,"\n" )
+        }
       }
-    }
-  }
+      else {#match!
+        #cat("!already solved\n")
+        z.corr[i, j] <- z.corr[j,i] <- solved.corrs[match]
+      }
+    }#end j
+  }#end i
 
   correct <- FALSE
   pre <- diag(ncol(z.corr))

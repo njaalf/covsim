@@ -121,18 +121,18 @@ get_lowerupper <- function(name)
 get_truncated_moments <- function(g1,g2){# orjebins recursive formula
   # second term in recursive formula should be zero at infinite endpoint
   infg1 <- is.infinite(g1); infg2 <-  is.infinite(g2)
-  Diff <- pnorm(g2)-pnorm(g1)
-  m <- c(0,1, (dnorm(g1)-dnorm(g2))/Diff)
-  m <- c(m, (length(m)-2)*m[length(m)-1]-(ifelse(infg2,0, g2)^(length(m)-2)*dnorm(g2)-ifelse(infg1,0, g1)^(length(m)-2)*dnorm(g1))/Diff)
-  m <- c(m, (length(m)-2)*m[length(m)-1]-(ifelse(infg2,0, g2)^(length(m)-2)*dnorm(g2)-ifelse(infg1,0, g1)^(length(m)-2)*dnorm(g1))/Diff)
-  m <- c(m, (length(m)-2)*m[length(m)-1]-(ifelse(infg2,0, g2)^(length(m)-2)*dnorm(g2)-ifelse(infg1,0, g1)^(length(m)-2)*dnorm(g1))/Diff)
+  Diff <- stats::pnorm(g2)-stats::pnorm(g1)
+  m <- c(0,1, (stats::dnorm(g1)-stats::dnorm(g2))/Diff)
+  m <- c(m, (length(m)-2)*m[length(m)-1]-(ifelse(infg2,0, g2)^(length(m)-2)*stats::dnorm(g2)-ifelse(infg1,0, g1)^(length(m)-2)*stats::dnorm(g1))/Diff)
+  m <- c(m, (length(m)-2)*m[length(m)-1]-(ifelse(infg2,0, g2)^(length(m)-2)*stats::dnorm(g2)-ifelse(infg1,0, g1)^(length(m)-2)*stats::dnorm(g1))/Diff)
+  m <- c(m, (length(m)-2)*m[length(m)-1]-(ifelse(infg2,0, g2)^(length(m)-2)*stats::dnorm(g2)-ifelse(infg1,0, g1)^(length(m)-2)*stats::dnorm(g1))/Diff)
   m[3:length(m)]
 }
 
 # (a_iZ+b_i)*I( g1 < Z < g2)
 get_segment_moments <- function(a, b, g1, g2){
   #moments of Z*I( g1 < Z < g2)
-  mom <- c(1, get_truncated_moments(g1, g2))*(pnorm(g2)-pnorm(g1))
+  mom <- c(1, get_truncated_moments(g1, g2))*(stats::pnorm(g2)-stats::pnorm(g1))
 
   koefs <- matrix(c(0, 0, 0, a, b,
                     0, 0, a^2, 2*a*b, b^2,
@@ -162,8 +162,8 @@ get_bs <- function(a, gamma){
 }
 
 get_pl_mean <- function(a,b,gamma){
-  ddiff <- diff(dnorm(c(-Inf, gamma, Inf)))
-  pdiff <- diff(pnorm(c(-Inf, gamma, Inf)))
+  ddiff <- diff(stats::dnorm(c(-Inf, gamma, Inf)))
+  pdiff <- diff(stats::pnorm(c(-Inf, gamma, Inf)))
   -sum(ddiff*a)+sum(pdiff*b)#in paper
 }
 
@@ -179,7 +179,7 @@ get_pl_moments <- function(a, b, gamma){
 fit_univariate <- function(gammalist, skew, kurt, scale=FALSE, monot){
 
   alist <- lapply( 1:length(skew), function(i){
-    out <- nlminb(start=rep(1, length(gammalist[[i]])+1),
+    out <- stats::nlminb(start=rep(1, length(gammalist[[i]])+1),
                   objective =skewkurt_discrepancy,
                   gamma=gammalist[[i]], skew=skew[i], kurt=kurt[i], lower=ifelse(monot, 0.05,-Inf))
     if(out$objective< 1e-4)
@@ -204,7 +204,7 @@ fit_univariate <- function(gammalist, skew, kurt, scale=FALSE, monot){
 
 
 # regular gammas
-get_gamma <- function(k) qnorm((1:k)/k)[1:(k-1)]
+get_gamma <- function(k) stats::qnorm((1:k)/k)[1:(k-1)]
 
 #
 pl_fun <- function(x, a, b, gamma){
