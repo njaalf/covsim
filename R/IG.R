@@ -38,7 +38,7 @@
 #'         excesskurt=population.excesskurt,
 #'         reps=5)
 #' @export
-rIG <- function(N, sigma.target,  skewness, excesskurtosis, reps=1, typeA=c("symm", "triang")) {
+rIG <- function(N, sigma.target,  skewness, excesskurtosis, reps=1, typeA="triang") {
   if(  is.null(sigma.target))
     stop("Please specify sigma.target")
 
@@ -61,7 +61,6 @@ rIG <- function(N, sigma.target,  skewness, excesskurtosis, reps=1, typeA=c("sym
   }
 
   #calculate A
-  typeA <- match.arg(typeA)
   if(typeA=="symm")
     A  <- lavaan::lav_matrix_symmetric_sqrt(sigma.target)#symmetric
   else
