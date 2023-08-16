@@ -16,7 +16,7 @@
 #' @author Njål Foldnes  (\email{njal.foldnes@gmail.com})
 #' @references Foldnes, N. and Grønneberg S. (2021). Non-normal data simulation using piecewise linear transforms.Under review.
 #' @examples
-#' #'set.seed(1)
+#'set.seed(1)
 #'sigma.target  <- cov(MASS::mvrnorm(5, rep(0,3), diag(3)))
 #'res  <- covsim::rPLSIM(10^5, sigma.target, skewness=rep(1,3), excesskurtosis=rep(4,3))
 #'my.sample  <- res[[1]][[1]]
@@ -26,7 +26,7 @@ rPLSIM <- function(N, sigma.target,  skewness, excesskurtosis, reps=1, numsegmen
     stop("Please specify sigma.target")
   sigma.target <-as.matrix(sigma.target)
   nvar <- dim(sigma.target)[2]
-  corr.target <- cov2cor(sigma.target)
+  corr.target <- stats::cov2cor(sigma.target)
   if(is.null(gammalist)){
     gamma <- get_gamma(numsegments)
     gammalist <- rep(list(gamma), ncol(corr.target))
@@ -34,7 +34,7 @@ rPLSIM <- function(N, sigma.target,  skewness, excesskurtosis, reps=1, numsegmen
 
   #univariate special case
   if(nvar==1){
-    out <- nlminb(start=rep(1, length(gammalist[[1]])+1),
+    out <- stats::nlminb(start=rep(1, length(gammalist[[1]])+1),
                   objective =skewkurt_discrepancy,
                   gamma=gammalist[[1]], skew=skewness[1], kurt=excesskurtosis[1], lower=ifelse(monot, 0.1,-Inf))
     if(out$objective > 1e-4)
@@ -43,7 +43,7 @@ rPLSIM <- function(N, sigma.target,  skewness, excesskurtosis, reps=1, numsegmen
     mom <- get_pl_moments(a, b, gammalist[[1]])
     a <- a/sqrt(mom[2]); b  <- get_bs(a, gammalist[[1]])
 
-    samples <- lapply(1:reps, function(i) pl_fun(rnorm(N),a, b, gammalist[[1]]))
+    samples <- lapply(1:reps, function(i) pl_fun(stats::rnorm(N),a, b, gammalist[[1]]))
 
     return(list(samples=lapply(samples, function(x) x*sqrt(c(sigma.target))), model=list(a=list(a),b=list(b),gamma=gammalist)))
   }
@@ -63,7 +63,7 @@ rPLSIM <- function(N, sigma.target,  skewness, excesskurtosis, reps=1, numsegmen
     for(j in ((i+1):ncol(z.corr))){
       if(verbose)
         message("Calibrating vars: ",i,"-",j)
-      out <- nlminb(corr.target[i, j], function(rho){
+      out <- stats::nlminb(corr.target[i, j], function(rho){
         (get_cov(alist[[i]],blist[[i]],gammalist[[i]],  alist[[j]],blist[[j]], gammalist[[j]], rho)-corr.target[i,j])^2
       }, lower = -0.998, upper=0.998)
       if(out$objective < 1e-4)
