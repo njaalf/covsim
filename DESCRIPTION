@@ -1,17 +1,17 @@
 Package: covsim
 Type: Package
 Title: VITA, IG and PLSIM Simulation for Given Covariance and Marginals
-Version: 0.2.0
+Version: 1.0.2
 Authors@R: c(person("Njaal", "Foldnes", email = "njal.foldnes@gmail.com", role = c("aut", "cre")),
-           person("Steffen", "Groenneberg", email = "steffeng@gmail.com", role = c("aut")))
-Description: User specifies population covariance matrix. Marginal information may be fully
-        specified, for which the package implements the VITA (VIne-To-Anything) algorithm. 
-        Groenneberg and Foldnes (2017) <doi:10.1007/s11336-017-9569-6>.
+           person("Steffen", "Grønneberg", email = "steffeng@gmail.com", role = c("aut")))
+Description: Random sampling from distributions with user-specified population covariance matrix. Marginal information may be fully
+        specified, for which the package implements the VITA (VIne-To-Anything) algorithm
+        Grønneberg and Foldnes (2017) <doi:10.1007/s11336-017-9569-6>.  See also Grønneberg, Foldnes and Marcoulides (2022) <doi:10.18637/jss.v102.i03>.
         Alternatively, marginal skewness and kurtosis may be specified, for which the package
-        implements the IG (independent generator) and PLSIM (piecewise linear) algorithms. Foldnes and Olsson (2016) <doi:10.1080/00273171.2015.1133274>.
-        Foldnes and Groenneberg (2021). 
+        implements the IG (independent generator) and PLSIM (piecewise linear) algorithms, see Foldnes and Olsson (2016) <doi:10.1080/00273171.2015.1133274> and
+        Foldnes and Grønneberg (2021) <doi:10.1080/10705511.2021.1949323>, respectively.  
 License: GPL (>= 2)
-Depends: R (>= 3.1.0)
+Depends: R (>= 3.5.0)
 Imports: 
     rvinecopulib (>= 0.5.1.1.0),
     lavaan (>= 0.6-5), 
@@ -24,7 +24,13 @@ Imports:
     tmvtnorm,
     Matrix
 Encoding: UTF-8
-RoxygenNote: 7.1.1
-Suggests: R.rsp
-VignetteBuilder: R.rsp
-
+RoxygenNote: 7.1.2
+Suggests: 
+    rmarkdown,
+    knitr,
+    R.rsp,
+    GGally,
+    psych,
+    testthat (>= 3.0.0)
+VignetteBuilder: knitr
+Config/testthat/edition: 3
