@@ -1,5 +1,10 @@
-# covsim 0.2.0
+# covsim 1.0.0
 
-Second release. Added new non-normal simulation procedure, PLSIM.
-Based on piecewise linear transform of standard normal variates. 
+Third release. Accompanies journal publication in JSS. 
 
+# covsim 1.0.2
+
+rIG: A matrix is now triangular by default
+
+rPLSIM: Added tests for whether an identical pair has been calibrated. 
+This speeds up rPLSIM if sigma.target has many identical values, and skewness and kurtosis values are identical. 
