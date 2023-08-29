@@ -19,8 +19,6 @@ Imports:
     PearsonDS, 
     MASS, 
     stats,
-    Rcpp, 
-    gsl,
     tmvtnorm,
     Matrix
 Encoding: UTF-8

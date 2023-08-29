@@ -32,7 +32,7 @@
 #' fit  <- lavaan::sem(model, data=lavaan::PoliticalDemocracy)
 #' population.sigma <- lavaan::lavInspect(fit, "sigma.hat")
 #' population.skew  <- c(0, 0, 0, 0, 1, 1, 1, 1, 2,2,2 )
-#' population.excesskurt <- c( 1 , 1, 1, 1, 3, 3, 3, 3, 7, 7, 7)
+#' population.excesskurt <- c( 1 , 1, 1, 1, 3, 3, 3, 3, 15, 15, 15)
 #' my.samples <- rIG(N=10^3, sigma=population.sigma,
 #'         skewness=population.skew,
 #'         excesskurt=population.excesskurt,
@@ -69,7 +69,12 @@ rIG <- function(N, sigma.target,  skewness, excesskurtosis, reps=1, typeA="trian
   IGskew        <- nleqslv::nleqslv(x=skewness, function.skew)$x
   IGkurt.excess <- nleqslv::nleqslv(x=excesskurtosis, function.kurt)$x
   parlist       <- list()
-  for (i in 1:nvar) parlist[[i]] <- PearsonDS::pearsonFitM(moments=c(mean=0, variance=1, skewness=IGskew[i], 3+IGkurt.excess[i]))
+  for (i in 1:nvar){
+    res <- tryCatch(PearsonDS::pearsonFitM(moments=c(mean=0, variance=1, skewness=IGskew[i], 3+IGkurt.excess[i])),
+                    error = function(c) {
+                      stop(paste("No valid solution for variable", i, "- Try setting typeA==\"symm\"."))})
+    parlist[[i]] <- res
+  }
 
   IGdata <- sapply(1:nvar, function(i) PearsonDS::rpearson(N*reps, parlist[[i]]) )
 
