@@ -75,6 +75,5 @@ calibrated.vine <- vita(marginsnorm, sigma.target =sigma.target, Nmax=10^5, core
 
 }
 \references{
-Grønneberg, S and Foldnes, N. (2017). Covariance model simulation using regular vines.
-Psychometrika, 82(4), 1035-1051
+Grønneberg, S., Foldnes, N., & Marcoulides, K. M. (2021). covsim: An r package for simulating non-normal data for structural equation models using copulas. Journal of Statistical Software. doi:10.18637/jss.v102.i03
 }

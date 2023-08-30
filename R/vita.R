@@ -26,8 +26,8 @@
 #'@return If a feasible solution was found, a vine to be used for simulation
 #'
 #'
-#'@references Grønneberg, S and Foldnes, N. (2017). Covariance model simulation using regular vines.
-#' Psychometrika, 82(4), 1035-1051
+#'
+#' @references Grønneberg, S., Foldnes, N., & Marcoulides, K. M. (2021). covsim: An r package for simulating non-normal data for structural equation models using copulas. Journal of Statistical Software. doi:10.18637/jss.v102.i03
 #'
 #' @examples
 #' set.seed(1)# define a target covariance. 3 dimensions.

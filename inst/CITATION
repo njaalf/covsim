@@ -1,18 +1,19 @@
-citHeader("To cite covsim in publications use:")
-
-citEntry(entry = "Article",
-         title        = "Covariance Model Simulation Using Regular Vines",
-         author       = personList(as.person("Steffen Grønneberg"),
-                                   as.person("Njål Foldnes")),
-         journal      = "Psychometrika",
-         year         = "2017",
-         volume       = "82",
-         number       = "4",
-         url          = "https://doi.org/10.1007/s11336-017-9569-6",
-
-         textVersion  =
-           paste("Steffen Grønneberg, Njål Foldnes (2017).",
-                 "Covariance Model Simulation Using Regular Vines.",
-                 "Psychometrika, 82(4).",
-                 "URL https://doi.org/10.1007/s11336-017-9569-6")
+bibentry(bibtype = "Article",
+  title        = "{covsim}: An {R} Package for Simulating Non-Normal Data for Structural Equation Models Using Copulas",
+  author       = c(person(given = "Steffen",
+                          family = "Gr{\\o}nneberg",
+                          email = "steffeng@gmail.com"),
+                   person(given = "Nj{\\aa}l",
+                          family = "Foldnes",
+                          email = "njal.foldnes@gmail.com"),
+                   person(given = c("Katerina", "M."),
+                          family = "Marcoulides",
+                          email = "kmarcoul@umn.edu")),
+  journal      = "Journal of Statistical Software",
+  year         = "2022",
+  volume       = "102",
+  number       = "3",
+  pages        = "1--45",
+  doi          = "10.18637/jss.v102.i03",
+  header       = "To cite covsim in publications use:"
 )

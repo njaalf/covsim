@@ -51,9 +51,10 @@ has a similar interface as that of IG. Skewness and kurtosis is pre-specified. P
 References
 ----------
 Grønneberg, S., Foldnes, N. Covariance Model Simulation Using Regular Vines. Psychometrika 82, 1035–1051 (2017). https://doi.org/10.1007/s11336-017-9569-6
+ 
+Grønneberg, S., Foldnes, N., & Marcoulides, K. M. (2022). covsim: An r package for simulating non-normal data for structural equation models using copulas. Journal of Statistical Software. DOI: 10.18637/jss.v102.i03
 
 Njål Foldnes & Ulf Henning Olsson (2016) A Simple Simulation Technique for Nonnormal Data with Prespecified Skewness, Kurtosis, and Covariance Matrix, Multivariate Behavioral Research, 51:2-3, 207-219, DOI: 10.1080/00273171.2015.1133274
 
-Njål Foldnes & Steffen Grønneberg (2021) Non-normal data simulation using piecewise linear transforms. In review.
-
+Foldnes, N., & Grønneberg, S. (2022). Non-normal data simulation using piecewise linear transforms. Structural Equation Modeling: A Multidisciplinary Journal, 29(1), 36-46.
 
