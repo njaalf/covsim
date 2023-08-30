@@ -110,13 +110,18 @@ vita <- function(margins, sigma.target, vc = NULL,
       if(verbose)
         cat("   ", var1, "-", var2, "(", counter, "of", d * (d - 1)/2,
           ")\n")
-
-      res <- tryCatch(solve.param(sigma.target, pair.index, cond.index, Matrix,
-                                  margins, pair_idx, pcs_list, family_set, Nmax=Nmax,
-                                  numrootpoints=numrootpoints, conflevel=conflevel,
-                                  numpoints=numpoints, cores=cores), error = function(err)
+      res <- tryCatch(solve_param(sigma.target=sigma.target,pair.index=pair.index,
+                                  cond.index=cond.index,Matrix=Matrix,
+                                  margins=margins,
+                                  pair_idx=pair_idx,
+                                  pcs_list=pcs_list,
+                                  family_set=family_set, Nmax=Nmax,
+                                  numrootpoints=numrootpoints,
+                                  conflevel=conflevel,
+                                  numpoints=numpoints,
+                                  cores=cores), error = function(err)
                                   {
-                                    print(paste("\n Error message in solve.param: ", err))
+                                    print(paste("\n Error message in solve_param: ", err))
                                     return(NA)
                                   })
       if (is.na(res[[1]])){

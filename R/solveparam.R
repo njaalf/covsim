@@ -1,4 +1,4 @@
-solve.param <- function(sigma.target, pair.index, cond.index, Matrix, margins, pair_idx,
+solve_param <- function(sigma.target, pair.index, cond.index, Matrix, margins, pair_idx,
                         pcs_list, family_set, Nmax, numrootpoints, conflevel, numpoints, cores)
 {
   # construct subvine

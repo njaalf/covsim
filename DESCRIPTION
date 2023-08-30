@@ -1,7 +1,7 @@
 Package: covsim
 Type: Package
 Title: VITA, IG and PLSIM Simulation for Given Covariance and Marginals
-Version: 1.0.2
+Version: 1.1.0
 Authors@R: c(person("Njaal", "Foldnes", email = "njal.foldnes@gmail.com", role = c("aut", "cre")),
            person("Steffen", "Grønneberg", email = "steffeng@gmail.com", role = c("aut")))
 Description: Random sampling from distributions with user-specified population covariance matrix. Marginal information may be fully
@@ -22,7 +22,7 @@ Imports:
     tmvtnorm,
     Matrix
 Encoding: UTF-8
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.3
 Suggests: 
     rmarkdown,
     knitr,
