@@ -8,7 +8,7 @@
 #' @param skewness Target skewness
 #' @param excesskurtosis Target excess kurtosis
 #' @param reps Number of simulated samples
-#' @param typeA Symmetrical (default) or triangular A matrix
+#' @param typeA Symmetrical or triangular (default) A matrix
 #' @return A list of simulated samples
 #' @author Njål Foldnes  (\email{njal.foldnes@gmail.com})
 #' @references Foldnes, N. and Olson, U. H. (2016). A simple simulation technique for nonnormal data with prespecified skewness,

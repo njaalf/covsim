@@ -69,14 +69,24 @@ vita <- function(margins, sigma.target, vc = NULL,
 
 
   d <- ncol(sigma.target)
+
+  #check correct margins wrt rvinecopulib
+  dstructure <- rvinecopulib::dvine_structure(1:d)  #d-vine
+  pcs <- unflatten(rep(list(rvinecopulib::bicop_dist(family = family_set[1])),
+                       d * (d - 1)/2))
+  res <- tryCatch(rvinecopulib::vine_dist(margins, pair_copulas = pcs,
+                                          structure = dstructure), error = function(err)
+                                          {
+                                            stop(paste('\n Margins must be of type
+  "beta", "cauchy", "chisq", "exp", "f", "gamma",
+  "lnorm", "logis", "norm", "t", "unif", "weibull".'))
+                                          })
+
+
   if (is.null(vc))
   {
     # vc d-vine with pcs from first member of family_set
-    dstructure <- rvinecopulib::dvine_structure(1:d)  #d-vine
-    pcs <- unflatten(rep(list(rvinecopulib::bicop_dist(family = family_set[1])),
-                         d * (d - 1)/2))
     vc <- rvinecopulib::vinecop_dist(pair_copulas = pcs, structure = dstructure)
-
   }
 
   vine_structure <- rvinecopulib::get_structure(vc)
@@ -121,7 +131,7 @@ vita <- function(margins, sigma.target, vc = NULL,
                                   numpoints=numpoints,
                                   cores=cores), error = function(err)
                                   {
-                                    print(paste("\n Error message in solve_param: ", err))
+                                    warning(paste("\n Error message in solve_param: ", err))
                                     return(NA)
                                   })
       if (is.na(res[[1]])){

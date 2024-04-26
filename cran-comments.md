@@ -38,7 +38,7 @@ The DOI in CITATION is for a new JSS publication that will be registered after p
 
 * Improved speed for rPLSIM
 * Changed default A type in rIG from symmetric to triangular
-
+* Added check of correct margin names in vita. 
 
 
 
