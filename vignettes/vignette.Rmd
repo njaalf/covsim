@@ -53,11 +53,11 @@ summary(calibrated.vita)
 ```
 
 The calibrated vita object is made from a Clayton copula with dependence parameter $\theta=3.4$. 
-Let us confirm that the vine distribution has correlation $\rho=.8$, by simulating a $n=10^5$ sample from the vita object: 
+You can confirm that the vine distribution has correlation $\rho=.8$, by simulating a $n=10^5$ sample from the vita object: 
 
 
 ```{r}
-```{r }
+```{r eval=F}
 library("rvinecopulib")
 large.sample <- rvine(10^5, calibrated.vita)
 cov(large.sample)
@@ -73,6 +73,7 @@ and we want the marginals to be the standard
 normal distribution,  a scaled chi-squared
 distribution with one degree of freedom, and a scaled Student's $t$ distribution with five DFs.
 The scalings ensure unit variance. In addition, we want to specify the vine structure explicitly, and also the copula family for each bivariate dependency as follows.
+Note: We set Nmax=10^5 to speed things up, the default, Nmax=10^6 should be used for serious work.
 
 ```{r, out.width="75%"}
 sigma.target <- matrix(c(1, 0.4, 0.3, 0.4, 1, 0.4, 0.3, 0.4, 1), 3)

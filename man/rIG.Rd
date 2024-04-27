@@ -17,7 +17,7 @@ rIG(N, sigma.target, skewness, excesskurtosis, reps = 1, typeA = "triang")
 
 \item{reps}{Number of simulated samples}
 
-\item{typeA}{Symmetrical (default) or triangular A matrix}
+\item{typeA}{Symmetrical or triangular (default) A matrix}
 }
 \value{
 A list of simulated samples
