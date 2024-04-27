@@ -87,7 +87,7 @@ pre <- diag(sqrt(margin.variances/diag(sigma.target)))
 vita.target <- pre %*% sigma.target %*% pre
 set.seed(1)
 calibrated.vita <- vita(margins, vita.target, vc = vine_cop, 
-                        verbose = TRUE)
+                        verbose = TRUE, Nmax = 10^5)#FAST CALIBRATION
 post <- diag(1/diag(pre))
 vita.sample <- rvine(10^5, calibrated.vita) %*% post
 round(cov(vita.sample) - sigma.target, 3)
