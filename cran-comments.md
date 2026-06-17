@@ -40,5 +40,24 @@ The DOI in CITATION is for a new JSS publication that will be registered after p
 * Changed default A type in rIG from symmetric to triangular
 * Added check of correct margin names in vita. 
 
+## 1.2.0
+
+* New calibrate/simulate API: `calibrate_ig()`, `calibrate_plsim()`,
+  `calibrate_vita()` return reusable calibration objects; sampling is done
+  via S3 methods on `stats::simulate()`. Existing `rIG()`, `rPLSIM()`,
+  `vita()` are unchanged in signature and return shape and now delegate
+  to the new API.
+* `vita()` is roughly 3-4x faster. The pair-copula parameter search now
+  uses `rvinecopulib::inverse_rosenblatt()` with cached uniform inputs
+  so the root-finding objective is deterministic, replacing the previous
+  multi-stage stochastic search with a single `uniroot()` call.
+* Pair-copulas within each tree are now calibrated in parallel via
+  `parallel::mclapply` when `cores > 1`.
+* New vignette: `calibrate-simulate.Rmd`.
+
+(Note: update the "Test environments" section above with your actual
+local R version and the results of `devtools::check_win_devel()` and
+`rhub::rhub_check()` before submitting.)
+
 
 
