@@ -1,0 +1,145 @@
+---
+title: "The calibrate / simulate workflow in covsim"
+author: "Njål Foldnes"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{The calibrate / simulate workflow in covsim}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  warning = FALSE,
+  message = FALSE
+)
+```
+
+## Motivation
+
+Since covsim 1.2.0, each of the three algorithms (`IG`, `PLSIM`, `VITA`) is
+split into two steps:
+
+1. **Calibration** — fits the model parameters that achieve the target
+   covariance (and the target marginal moments where applicable). This step
+   is the expensive one. It only needs to be run once for a given target.
+2. **Simulation** — draws data from the calibrated model. Fast. Can be
+   repeated as often as needed, returning a list of independent samples.
+
+The original `rIG()`, `rPLSIM()` and `vita()` functions are unchanged and
+still work; they are now thin wrappers that calibrate and simulate in one
+call. New code that needs many simulated datasets from the same target
+should call the calibrator once and reuse the calibration object.
+
+## The general pattern
+
+```{r eval=FALSE}
+library(covsim)
+
+# 1. calibrate once
+cal <- calibrate_ig(sigma.target, skewness, excesskurtosis)
+#   ... or calibrate_plsim(...)
+#   ... or calibrate_vita(margins, sigma.target)
+
+# 2. simulate one or more datasets
+draws <- simulate(cal, nsim = 100, N = 1000)   # list of 100 data matrices
+```
+
+`simulate()` here is the standard `stats::simulate` generic; covsim
+registers S3 methods for it on the three calibration object classes
+(`covsim_calib_ig`, `covsim_calib_plsim`, `covsim_calib_vita`).
+
+## IG (Independent Generator)
+
+```{r}
+library(covsim)
+set.seed(1)
+d <- 4
+sigma.target <- cov(MASS::mvrnorm(50, mu = rep(0, d), Sigma = diag(d)))
+
+cal_ig <- calibrate_ig(sigma.target,
+                       skewness        = rep(1, d),
+                       excesskurtosis  = rep(3, d))
+class(cal_ig)
+
+# draw five independent datasets from the same calibration
+draws <- simulate(cal_ig, nsim = 5, N = 10000)
+length(draws)
+dim(draws[[1]])
+round(cov(draws[[1]]) - sigma.target, 3)
+```
+
+The first call to `calibrate_ig` does the work; subsequent `simulate()`
+calls are nearly free.
+
+## PLSIM (Piecewise Linear)
+
+PLSIM's pairwise calibration is the slow step (one nonlinear search per
+variable pair). Splitting calibrate / simulate is especially useful here
+because a simulation study often needs many replications under the same
+target.
+
+```{r}
+set.seed(1)
+sigma.target <- cov(MASS::mvrnorm(50, mu = rep(0, 4), Sigma = diag(4)))
+cal_pl <- calibrate_plsim(sigma.target,
+                          skewness       = rep(1, 4),
+                          excesskurtosis = rep(3, 4),
+                          verbose        = FALSE)
+
+# Re-use the calibration for many replications
+replications <- simulate(cal_pl, nsim = 50, N = 500)
+length(replications)
+```
+
+## VITA (Vine-To-Anything)
+
+`calibrate_vita()` calibrates a regular vine to match the target
+covariance under user-specified marginals. The resulting calibration
+object embeds the underlying `vine_dist`, so it can be passed to
+`simulate()` (recommended) or to `rvinecopulib::rvine()` directly.
+
+```{r eval=FALSE}
+set.seed(1)
+d <- 5
+sigma.target <- cov(MASS::mvrnorm(50, mu = rep(0, d), Sigma = diag(d)))
+margins <- lapply(sqrt(diag(sigma.target)),
+                  function(s) list(distr = "norm", sd = s))
+
+cal_vita <- calibrate_vita(margins, sigma.target,
+                           Nmax    = 1e5,
+                           cores   = parallel::detectCores(),
+                           verbose = FALSE)
+
+draws <- simulate(cal_vita, nsim = 10, N = 1000)
+```
+
+### Speed and parallelism
+
+Since covsim 1.2.0, `vita()` calibration uses cached uniform inputs (via
+`rvinecopulib::inverse_rosenblatt()`) so the inner root-finding objective
+is deterministic; the previous multi-stage stochastic root search has
+been replaced by a single `uniroot()` call. In addition, pair-copulas at
+the same tree level are calibrated in parallel via `parallel::mclapply`.
+Pass `cores = N` to use N workers (defaults to all detected cores).
+
+The arguments `numrootpoints`, `conflevel`, and `numpoints` to `vita()`
+are retained in the signature for backward compatibility but no longer
+have any effect.
+
+## When to use the wrappers vs the new API
+
+Use the new API when:
+
+- You need many replications from the same target (simulation studies).
+- You want to inspect the calibrated model before simulating.
+- You want to call `simulate()` in pipelines (it is the standard R generic).
+
+Use the original `rIG()` / `rPLSIM()` / `vita()` wrappers when:
+
+- You only need a one-shot draw.
+- You're maintaining old code; both still work and produce the same
+  output shape as in covsim 1.1.0.

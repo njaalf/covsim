@@ -26,6 +26,37 @@ You can install:
 
 ------------------------------------------------------------------------
 
+The calibrate / simulate workflow (since 1.2.0)
+------------------------------------------------
+
+Each of the three algorithms is now split into a **calibration** step (which
+can be slow but only needs to be run once for a given target) and a
+**simulation** step (which is cheap and can be repeated as many times as you
+like). The calibration object is reusable: calibrate once, draw many
+independent samples without rerunning the expensive part.
+
+``` r
+# Step 1 — calibrate once
+cal <- calibrate_ig(sigma.target, skewness, excesskurtosis)
+# or: calibrate_plsim(sigma.target, skewness, excesskurtosis)
+# or: calibrate_vita(margins, sigma.target)
+
+# Step 2 — simulate as many datasets as you want
+samples <- simulate(cal, nsim = 100, N = 1000)   # list of 100 data matrices
+```
+
+The old `rIG()`, `rPLSIM()` and `vita()` functions are unchanged in signature
+and return shape; they are now thin wrappers over the new API.
+
+### Speed and parallelism in `vita`
+
+`vita()` calibration is now ~3–4× faster (cached uniform inputs via
+`rvinecopulib::inverse_rosenblatt()` plus a single deterministic
+`uniroot()`), and pair-copulas within each tree are calibrated in
+parallel via `mclapply` — pass `cores = N` to use N workers.
+
+See `vignette("calibrate-simulate", package = "covsim")` for a tutorial.
+
 Package overview
 ----------------
 
