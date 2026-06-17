@@ -9,21 +9,24 @@ rIG(N, sigma.target, skewness, excesskurtosis, reps = 1, typeA = "triang")
 \arguments{
 \item{N}{Number of observations to simulate.}
 
-\item{sigma.target}{Target population covariance matrix}
+\item{sigma.target}{Target population covariance matrix.}
 
-\item{skewness}{Target skewness}
+\item{skewness}{Target skewness vector.}
 
-\item{excesskurtosis}{Target excess kurtosis}
+\item{excesskurtosis}{Target excess kurtosis vector.}
 
-\item{reps}{Number of simulated samples}
+\item{reps}{Number of simulated samples.}
 
-\item{typeA}{Symmetrical or triangular (default) A matrix}
+\item{typeA}{Either \code{"triang"} (default, triangular Cholesky factor) or
+\code{"symm"} (symmetric square root).}
 }
 \value{
-A list of simulated samples
+A list of simulated samples.
 }
 \description{
-Using the IG method to simulate non-normal data
+Backward-compatible wrapper that combines \code{\link{calibrate_ig}} and
+\code{\link[stats]{simulate}} in one call. New code should prefer the
+calibrate/simulate split so calibration can be reused.
 }
 \examples{
 set.seed(1234)

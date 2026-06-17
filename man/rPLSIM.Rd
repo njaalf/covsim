@@ -19,27 +19,32 @@ rPLSIM(
 \arguments{
 \item{N}{Number of observations to simulate.}
 
-\item{sigma.target}{Target population covariance matrix}
+\item{sigma.target}{Target population covariance matrix.}
 
-\item{skewness}{Target skewness}
+\item{skewness}{Target skewness vector.}
 
-\item{excesskurtosis}{Target excess kurtosis}
+\item{excesskurtosis}{Target excess kurtosis vector.}
 
-\item{reps}{Number of simulated samples}
+\item{reps}{Number of simulated samples.}
 
-\item{numsegments}{The number of line segments in each marginal}
+\item{numsegments}{The number of line segments in each marginal.}
 
-\item{gammalist}{A list of breakpoints in each margin}
+\item{gammalist}{A list of breakpoints in each margin.}
 
-\item{monot}{True if piecewise linear functions are forced to be monotonous. The copula will then be normal.}
+\item{monot}{If \code{TRUE}, piecewise linear functions are forced to be monotonous.
+The implied copula is then normal.}
 
-\item{verbose}{If true, progress details of the procedure are printed}
+\item{verbose}{If \code{TRUE}, prints calibration progress.}
 }
 \value{
-A list with two elements. First element: the list of simulated samples. Second element: The fitted piecewise linear functions and the intermediate correlations matrix.
+A list with two elements. First element: the list of simulated samples.
+  Second element: the fitted piecewise linear functions and the intermediate
+  correlations matrix.
 }
 \description{
-Using the piecewise linear PLSIM method to simulate non-normal data
+Backward-compatible wrapper that combines \code{\link{calibrate_plsim}} and
+\code{\link[stats]{simulate}} in one call. New code should prefer the
+calibrate/simulate split so the (expensive) pairwise calibration can be reused.
 }
 \examples{
 set.seed(1)

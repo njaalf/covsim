@@ -18,10 +18,10 @@
 #' @references Foldnes, N. and Olson, U. H. (2016). A simple simulation technique for nonnormal data with prespecified skewness,
 #'             kurtosis, and covariance matrix. Multivariate behavioral research, 51(2-3), 207-219
 #' @examples
-#' set.seed(1)
-#' sigma.target <- cov(MASS::mvrnorm(10, mu = rep(0, 3), Sigma = diag(3)))
+#' sigma.target <- diag(3)
 #' cal <- calibrate_ig(sigma.target, skewness = rep(1, 3), excesskurtosis = rep(3, 3))
 #' samples <- stats::simulate(cal, nsim = 5, N = 1000)
+#' @importFrom stats simulate
 #' @export
 calibrate_ig <- function(sigma.target, skewness, excesskurtosis, typeA = "triang") {
   if (is.null(sigma.target))
