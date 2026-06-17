@@ -15,12 +15,16 @@
 #' be calibrated at each node in the vine. Possible entries are "gauss", "clayton", "joe", "gumbel" and "frank".
 #' Calibration of pair-copula families is attempted in the order provided.
 #' @param Nmax The sample size used for calibration. Reduce for faster calibration,
-#' at the cost of precision.
-#' @param numrootpoints The number of estimated roots at the initial calibration stage, which
-#' determines a search interval where Nmax samples are drawn
-#' @param conflevel Confidence level for determining search interval
-#' @param numpoints The number of samples drawn with size Nmax, to determine the root within search interval
-#' To increase precision increase this number. To calibrate faster (but less precisely), may be reduced to a number no lower than 2
+#' at the cost of precision. Since covsim 1.2.0 calibration uses cached uniform
+#' inputs (via \code{\link[rvinecopulib]{inverse_rosenblatt}}) so the
+#' root-finding objective is deterministic and \code{Nmax} only controls the
+#' Monte Carlo precision of the matched covariance, not the stability of root
+#' search.
+#' @param numrootpoints Unused since covsim 1.2.0 (retained for backward
+#' compatibility). The previous multi-stage stochastic root search was replaced
+#' by a single deterministic \code{\link[stats]{uniroot}} over cached uniforms.
+#' @param conflevel Unused since covsim 1.2.0 (retained for backward compatibility).
+#' @param numpoints Unused since covsim 1.2.0 (retained for backward compatibility).
 #'@param verbose If TRUE, outputs details of calibration of each bicopula
 #'@param cores Number of cores to use. If larger than 1, computations are done in parallel. May be determined with parallel:detectCores()
 #'@return If a feasible solution was found, a vine to be used for simulation

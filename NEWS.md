@@ -7,6 +7,14 @@ calibration can drive many simulations without recomputation. The existing
 `rIG()`, `rPLSIM()`, and `vita()` functions are unchanged in signature and
 return shape; they now delegate to the new API.
 
+`vita()` is roughly 3–4× faster. The pair-copula parameter search now uses
+`rvinecopulib::inverse_rosenblatt()` with cached uniform inputs so the
+root-finding objective is deterministic, replacing the previous multi-stage
+stochastic search with a single `uniroot()` call. The `numrootpoints`,
+`conflevel`, and `numpoints` arguments are kept for backward compatibility
+but no longer have any effect. Seeded outputs are not bit-identical with
+covsim 1.1.0; the matched target covariance is reached at similar precision.
+
 # covsim 1.0.0
 
 Third release. Accompanies journal publication in JSS. 
