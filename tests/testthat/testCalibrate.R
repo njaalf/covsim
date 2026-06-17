@@ -100,3 +100,34 @@ test_that("calibrate_vita + simulate produces correct covariance (small Nmax)", 
   cov_est <- cov(draws[[1]])
   expect_equal(as.numeric(cov_est), as.numeric(sigma.target), tolerance = 0.15)
 })
+
+
+test_that("vita calibration bias is small under large-sample averaging", {
+  # Isolates calibration bias from sampling noise by averaging the empirical
+  # covariance over several large simulated samples. Skipped on CRAN because
+  # the large samples make this slow.
+  skip_on_cran()
+
+  set.seed(1)
+  d <- 5
+  sigma.target <- cov(MASS::mvrnorm(50, mu = rep(0, d), Sigma = diag(d)))
+  margins <- lapply(sqrt(diag(sigma.target)),
+                    function(s) list(distr = "norm", sd = s))
+
+  set.seed(42)
+  cal <- calibrate_vita(margins, sigma.target = sigma.target,
+                        Nmax = 5e4, cores = 1, verbose = FALSE)
+
+  cov_sum <- matrix(0, d, d)
+  reps <- 3
+  for (k in seq_len(reps)) {
+    set.seed(100 + k)
+    samp <- stats::simulate(cal, nsim = 1, N = 5e5, cores = 1)[[1]]
+    cov_sum <- cov_sum + cov(samp)
+  }
+  cov_mean <- cov_sum / reps
+
+  # Calibration bias (after averaging out MC noise) should be small.
+  # Empirically ~0.005 at this Nmax/d; allow generous headroom for CI variance.
+  expect_lt(max(abs(cov_mean - sigma.target)), 0.02)
+})
