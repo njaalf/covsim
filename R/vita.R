@@ -102,43 +102,58 @@ vita <- function(margins, sigma.target, vc = NULL,
   Matrix <- v_matrix[rev(1:d), ]  # VineCopula package, for create.submatrix
 
 
-  # run algorithm
-  counter <- 1; messages <- NULL
+  # run algorithm: process trees sequentially (each tree depends on previous
+  # trees' calibrations), but pair-copulas within a tree are independent and
+  # are calibrated in parallel via mclapply. mc.cores is taken from the
+  # `cores` argument; inverse_rosenblatt inside solve_param is forced to cores=1
+  # to avoid nested parallelism.
+  counter <- 1
   for (i in seq_along(pcs))
   {
     if (verbose)
       cat("Tree", i, "\n")
-    for (j in seq_along(pcs[[i]]))
-    {
+    n_pairs <- length(pcs[[i]])
+    tree_idx <- seq_len(n_pairs)
+    use_cores <- min(cores, n_pairs)
+
+    worker <- function(j) {
       var1 <- v_matrix[d + 1 - j, j]
       var2 <- v_matrix[i, j]
-      if (i == 1)
-      {
-        conditional <- NULL
-      } else
-      {
-        conditional <- v_matrix[1:(i - 1), j]
-      }
+      conditional <- if (i == 1) NULL else v_matrix[1:(i - 1), j]
       pair.index <- c(var1, var2)
-      cond.index <- conditional
-      if(verbose)
-        cat("   ", var1, "-", var2, "(", counter, "of", d * (d - 1)/2,
-          ")\n")
-      res <- tryCatch(solve_param(sigma.target=sigma.target,pair.index=pair.index,
-                                  cond.index=cond.index,Matrix=Matrix,
-                                  margins=margins,
-                                  pair_idx=pair_idx,
-                                  pcs_list=pcs_list,
-                                  family_set=family_set, Nmax=Nmax,
-                                  numrootpoints=numrootpoints,
-                                  conflevel=conflevel,
-                                  numpoints=numpoints,
-                                  cores=cores), error = function(err)
-                                  {
-                                    warning(paste("\n Error message in solve_param: ", err))
-                                    return(NA)
-                                  })
-      if (is.na(res[[1]])){
+      tryCatch(solve_param(sigma.target = sigma.target,
+                           pair.index = pair.index,
+                           cond.index = conditional,
+                           Matrix = Matrix,
+                           margins = margins,
+                           pair_idx = pair_idx,
+                           pcs_list = pcs_list,
+                           family_set = family_set,
+                           Nmax = Nmax,
+                           numrootpoints = numrootpoints,
+                           conflevel = conflevel,
+                           numpoints = numpoints,
+                           cores = 1L),
+               error = function(err) {
+                 warning(paste("\n Error message in solve_param: ", err))
+                 NA
+               })
+    }
+
+    if (use_cores > 1L) {
+      tree_results <- parallel::mclapply(tree_idx, worker, mc.cores = use_cores)
+    } else {
+      tree_results <- lapply(tree_idx, worker)
+    }
+
+    for (k in seq_along(tree_results)) {
+      res <- tree_results[[k]]
+      if (verbose) {
+        var1 <- v_matrix[d + 1 - k, k]
+        var2 <- v_matrix[i, k]
+        cat("   ", var1, "-", var2, "(", counter, "of", d * (d - 1)/2, ")\n")
+      }
+      if (length(res) == 1 && is.na(res[[1]])) {
         message("\n \n  The specified vine, marginal and covariances are not compatible. \n \n ")
         return(NULL)
       }
