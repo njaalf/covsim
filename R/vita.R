@@ -149,4 +149,70 @@ vita <- function(margins, sigma.target, vc = NULL,
 }
 
 
+#' Calibrate a regular vine (VITA)
+#'
+#' Wraps \code{\link{vita}} and returns a calibration object that can be passed
+#' to \code{\link[stats]{simulate}}. The returned object embeds the calibrated
+#' \code{vine_dist} so it can also be used directly with the \pkg{rvinecopulib}
+#' simulator if desired.
+#'
+#' @inheritParams vita
+#' @return If a feasible solution was found, an object of class
+#'   \code{c("covsim_calib_vita", "covsim_calib")} that can be passed to
+#'   \code{\link[stats]{simulate}}; otherwise \code{NULL}.
+#' @seealso \code{\link{vita}}, \code{\link[stats]{simulate}}
+#' @examples
+#' set.seed(1)
+#' sigma.target <- cov(MASS::mvrnorm(10, mu = rep(0, 3), Sigma = diag(1, 3)))
+#' marginsnorm <- lapply(X = sqrt(diag(sigma.target)),
+#'                      function(X) list(distr = "norm", sd = X))
+#' cal <- calibrate_vita(marginsnorm, sigma.target = sigma.target,
+#'                       Nmax = 10^5, cores = 1)
+#' samples <- stats::simulate(cal, nsim = 1, N = 1000)
+#' @export
+calibrate_vita <- function(margins, sigma.target, vc = NULL,
+                           family_set = c("clayton", "gauss",
+                                          "joe", "gumbel", "frank"),
+                           Nmax = 10^6, numrootpoints = 10, conflevel = 0.995,
+                           numpoints = 4, verbose = TRUE,
+                           cores = parallel::detectCores())
+{
+  vd <- vita(margins = margins, sigma.target = sigma.target, vc = vc,
+             family_set = family_set, Nmax = Nmax,
+             numrootpoints = numrootpoints, conflevel = conflevel,
+             numpoints = numpoints, verbose = verbose, cores = cores)
+  if (is.null(vd))
+    return(NULL)
+  structure(
+    list(
+      vine = vd,
+      margins = margins,
+      sigma.target = sigma.target
+    ),
+    class = c("covsim_calib_vita", "covsim_calib")
+  )
+}
 
+
+#' Simulate from a calibrated VITA vine
+#'
+#' S3 method for \code{\link[stats]{simulate}} that draws samples from a
+#' \code{covsim_calib_vita} object produced by \code{\link{calibrate_vita}}.
+#'
+#' @param object A \code{covsim_calib_vita} object.
+#' @param nsim Number of independent samples (datasets) to return.
+#' @param seed Optional seed passed to \code{\link{set.seed}}.
+#' @param N Number of observations per simulated dataset.
+#' @param cores Number of cores passed to \code{\link[rvinecopulib]{rvine}}.
+#' @param ... Unused.
+#' @return A list of \code{nsim} data frames (or matrices), each with \code{N} rows.
+#' @export
+simulate.covsim_calib_vita <- function(object, nsim = 1, seed = NULL, N,
+                                       cores = 1, ...) {
+  if (missing(N))
+    stop("Please specify N (number of observations per dataset).")
+  if (!is.null(seed))
+    set.seed(seed)
+  lapply(seq_len(nsim),
+         function(i) rvinecopulib::rvine(N, object$vine, cores = cores))
+}
